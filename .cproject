@@ -144,6 +144,8 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.1446783257" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1092617365" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="$(SENAVICOMMON_PATH)/Source"/>
+									<listOptionValue builtIn="false" value="$(STAGING_DIR)/usr/include/allwinner"/>
+									<listOptionValue builtIn="false" value="$(STAGING_DIR)/usr/include/allwinner/include/"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1653911567" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -156,6 +158,14 @@
 									<listOptionValue builtIn="false" value="boost_thread"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="rt"/>
+									<listOptionValue builtIn="false" value="awrecorder"/>
+									<listOptionValue builtIn="false" value="cdc_vencoder"/>
+									<listOptionValue builtIn="false" value="cdc_aencoder"/>
+									<listOptionValue builtIn="false" value="cdx_base"/>
+									<listOptionValue builtIn="false" value="cdx_muxer"/>
+									<listOptionValue builtIn="false" value="cdc_base"/>
+									<listOptionValue builtIn="false" value="cdc_ve"/>
+									<listOptionValue builtIn="false" value="cdc_memory"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.1874074823" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" useByScannerDiscovery="false" valueType="libPaths">
 									<listOptionValue builtIn="false" value="$(SENAVICOMMON_PATH)/Build"/>
@@ -202,6 +212,9 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Build">
+			<resource resourceType="PROJECT" workspacePath="/SeTrunk"/>
+		</configuration>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/SeTrunk"/>
 		</configuration>

@@ -7,7 +7,7 @@
 
 #include "TrunkApplication.h"
 #include <Parameter/Parameter.h>
-#include <MapGenerator/MapGenerator.h>
+#include "MapGenerator/MapGenerator.h"
 
 namespace NS_Trunk
 {
@@ -32,7 +32,7 @@ namespace NS_Trunk
     NS_NaviCommon::Parameter parameter;
     parameter.loadConfigurationFile("trunk.xml");
 
-    map_path_ = parameter.getParameter("map_path", "/tmp/gmap.pgm");
+    map_path_ = parameter.getParameter("map_path", "/tmp/gmap.jpg");
     map_update_rate_ = parameter.getParameter("map_update_rate", 1.0f);
   }
 
@@ -46,7 +46,10 @@ namespace NS_Trunk
       {
         if(map.result)
         {
-          NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
+          //NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
+          std::vector< int > yuv_data;
+          NS_NaviCommon::MapGenerator::pgmToYuv(map.map.data, yuv_data, map.map.info.height, map.map.info.width);
+          NS_NaviCommon::MapGenerator::compressYuvToJpeg(yuv_data, map.map.info.height, map.map.info.width, map_path_);
         }
       }
       rate.sleep();
