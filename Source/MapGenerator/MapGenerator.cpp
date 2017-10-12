@@ -16,8 +16,6 @@
 #include <sys/file.h>
 #include <string.h>
 
-#include "../Console/Console.h"
-
 #define SAVE_VIDEO_FRAME (1)
 #define VIDEO_INPUT (1)
 
