@@ -31,6 +31,9 @@ namespace NS_Trunk
     std::string map_path_;
     double map_update_rate_;
 
+    std::string app_ip_addr_;
+    int app_ip_port_;
+
   private:
     NS_Service::Client<NS_ServiceType::ServiceMap>* map_cli;
 
@@ -40,6 +43,8 @@ namespace NS_Trunk
     void loadParameters();
 
     void mapGenerateLoop();
+
+    bool sendMap(std::string map_path, std::string app_ip_addr, int app_ip_port);
 
   public:
     virtual void run();
