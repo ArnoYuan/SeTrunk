@@ -179,7 +179,6 @@ namespace NS_Trunk
     }
 
     fd_set server_fd_set;
-    int max_fd = -1;
     struct timeval tv;
 
     tv.tv_sec = 1;
@@ -189,7 +188,7 @@ namespace NS_Trunk
     {
       FD_ZERO(&server_fd_set);
       FD_SET(server_sock_fd, &server_fd_set);
-      int ret = select(max_fd + 1, &server_fd_set, NULL, NULL, &tv);
+      int ret = select(server_sock_fd + 1, &server_fd_set, NULL, NULL, &tv);
       if(ret > 0)
       {
         int client_sock_fd = 0;
