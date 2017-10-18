@@ -256,18 +256,18 @@ namespace NS_NaviCommon
           {
             if((i % 2) == 0)
             {
-              image[j * width + i + 1] = 99;
-              image[(j + 1) * width + i] = 99;
-              image[(j + 1) * width + i + 1] = 99;
+              pgm[j * width + i + 1] = 99;
+              pgm[(j + 1) * width + i] = 99;
+              pgm[(j + 1) * width + i + 1] = 99;
               cflag = 1;
               break;
             }
             else
             {
               //(i%2==1)
-              image[j * width + i - 1] = 99;
-              image[(j + 1) * width + i] = 99;
-              image[(j + 1) * width + i - 1] = 99;
+              pgm[j * width + i - 1] = 99;
+              pgm[(j + 1) * width + i] = 99;
+              pgm[(j + 1) * width + i - 1] = 99;
               cflag = 1;
               break;
             }
@@ -277,18 +277,18 @@ namespace NS_NaviCommon
             //(j%2==1)
             if((i % 2) == 0)
             {
-              image[j * width + i + 1] = 99;
-              image[(j - 1) * width + i] = 99;
-              image[(j - 1) * width + i + 1] = 99;
+              pgm[j * width + i + 1] = 99;
+              pgm[(j - 1) * width + i] = 99;
+              pgm[(j - 1) * width + i + 1] = 99;
               cflag = 1;
               break;
             }
             else
             {
               //(i%2==1)
-              image[j * width + i - 1] = 99;
-              image[(j - 1) * width + i] = 99;
-              image[(j - 1) * width + i - 1] = 99;
+              pgm[j * width + i - 1] = 99;
+              pgm[(j - 1) * width + i] = 99;
+              pgm[(j - 1) * width + i - 1] = 99;
               cflag = 1;
               break;
             }
