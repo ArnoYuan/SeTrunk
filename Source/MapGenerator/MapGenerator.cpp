@@ -18,6 +18,7 @@
 
 #define SAVE_VIDEO_FRAME (1)
 #define VIDEO_INPUT (1)
+#define FS_WRITER (1)
 
 namespace NS_NaviCommon
 {
@@ -231,16 +232,16 @@ namespace NS_NaviCommon
     return false;
   }
 
-  void MapGenerator::pgmToYuv(std::vector< char >& pgm,
-                              std::vector< int >& yuv,
-                              int height, int width)
+  void MapGenerator::mapToYuv(std::vector< char >& pgm,
+                              std::vector< char >& yuv,
+                              int height, int width,
+                              int& resize_height, int& resize_width)
   {
     int size = height * width;
-    yuv.resize(size);
+    int yuv_size = ((size * 3) / 2);
+    yuv.resize(yuv_size);
 
-    std::vector< char > image(pgm);
-
-    std::vector< int > rgb;
+    std::vector< char > rgb;
     rgb.resize(size);
 
     int cflag = 0;
@@ -248,25 +249,25 @@ namespace NS_NaviCommon
     {
       for(int i = 0; i < width; i++)
       {
-        if(pgm[j * height + i] == 99)
+        if(pgm[j * width + i] == 99)
         {
           printf("robot pose is %d, %d\n", i, height - j);
           if((j % 2) == 0)
           {
             if((i % 2) == 0)
             {
-              image[j * height + i + 1] = 99;
-              image[(j + 1) * height + i] = 99;
-              image[(j + 1) * height + i + 1] = 99;
+              image[j * width + i + 1] = 99;
+              image[(j + 1) * width + i] = 99;
+              image[(j + 1) * width + i + 1] = 99;
               cflag = 1;
               break;
             }
             else
             {
               //(i%2==1)
-              image[j * height + i - 1] = 99;
-              image[(j + 1) * height + i] = 99;
-              image[(j + 1) * height + i - 1] = 99;
+              image[j * width + i - 1] = 99;
+              image[(j + 1) * width + i] = 99;
+              image[(j + 1) * width + i - 1] = 99;
               cflag = 1;
               break;
             }
@@ -276,18 +277,18 @@ namespace NS_NaviCommon
             //(j%2==1)
             if((i % 2) == 0)
             {
-              image[j * height + i + 1] = 99;
-              image[(j - 1) * height + i] = 99;
-              image[(j - 1) * height + i + 1] = 99;
+              image[j * width + i + 1] = 99;
+              image[(j - 1) * width + i] = 99;
+              image[(j - 1) * width + i + 1] = 99;
               cflag = 1;
               break;
             }
             else
             {
               //(i%2==1)
-              image[j * height + i - 1] = 99;
-              image[(j - 1) * height + i] = 99;
-              image[(j - 1) * height + i - 1] = 99;
+              image[j * width + i - 1] = 99;
+              image[(j - 1) * width + i] = 99;
+              image[(j - 1) * width + i - 1] = 99;
               cflag = 1;
               break;
             }
@@ -299,24 +300,68 @@ namespace NS_NaviCommon
         break;
     }
 
-    for(int j = 0; j < size; j++)
+    resize_width = width;
+    resize_height = height;
+    while((resize_width % 4) != 0)
     {
-      rgb[j] = image[j];
+      resize_width++;
     }
 
-    std::vector< int >::iterator it_y, it_u, it_v;
-    std::vector< int >::iterator it_rgb = rgb.begin();
-    it_y = yuv.begin();
-    it_u = it_y + size;
-    it_v = it_u + (size * 1 / 4);
-    int* rgb_point;
+    while((resize_height % 4) != 0)
+    {
+      resize_height++;
+    }
+
+    int pos = 0;
+    for(int y = 0; y < height; y++)
+    {
+      for(int x = 0; x < width; x++)
+      {
+
+        if(pgm[pos] == 0)
+        { //occ [0,0.1)
+          rgb[pos++] = 254;
+        }
+        else if(pgm[pos] == +100)
+        { //occ (0.65,1]
+          rgb[pos++] = 0;
+        }
+        else if(pgm[pos] == 99)
+        {
+          rgb[pos++] = 99;
+        }
+        else
+        { //occ [0.1,0.65]
+          rgb[pos++] = 205;
+        }
+      }
+      for(int k = 0; k < (resize_width - width); k++)
+      {
+         rgb[pos++] = 205;
+      }
+    }
+    for(int y = 0; y < resize_height - height; y++)
+    {
+      for(int x = 0; x < resize_width; x++)
+      {
+        rgb[pos++] = 205;
+      }
+    }
+
+    char* it_y = &yuv[0];
+    char* it_u = it_y + size;
+    char* it_v = it_u + size / 4;
+
+    int rgb_point;
     unsigned char y, u, v, r, g, b;
+
     //RGB[0,255]--->YUV[0,255]
     for(int j = 0; j < height; j++)
     {
       for(int i = 0; i < width; i++)
       {
-        *rgb_point = *(it_rgb + (j * height + i));
+        rgb_point = rgb[j * width + i];
+
         if(*rgb_point == 99)
         {
           r = 240;
@@ -325,20 +370,26 @@ namespace NS_NaviCommon
         }
         else
         {
-          r = g = b = *rgb_point;
+          r = g = b = rgb_point;
         }
+
         y = (unsigned char)((299 * r + 587 * g + 114 * b) / 1000);
         u = (unsigned char)((-169 * r - 331 * g + 500 * b) / 1000) + 128;
         v = (unsigned char)((500 * r - 419 * g - 81 * b) / 1000) + 128;
+
         if(y > 255)
           y = 255;
+
         if(y < 0)
           y = 0;
+
         *(it_y++) = y;
+
         if((j % 2 == 0) && (i % 2 == 0))
         {
           if(u > 255)
             u = 255;
+
           if(u < 0)
             u = 0;
 
@@ -346,6 +397,7 @@ namespace NS_NaviCommon
 
           if(v > 255)
             v = 255;
+
           if(v < 0)
             v = 0;
 
@@ -359,10 +411,11 @@ namespace NS_NaviCommon
   {
     DemoRecoderContext *p = (DemoRecoderContext*)context;
 
+    int sizeY = p->videoConfig.nSrcHeight * p->videoConfig.nSrcWidth;
+
     struct ScMemOpsS* memops = NULL;
 
     VideoInputBuffer videoInputBuffer;
-    int sizeY = p->videoConfig.nSrcHeight * p->videoConfig.nSrcWidth;
 
     if(p->videoConfig.bUsePhyBuf)
     {
@@ -378,7 +431,7 @@ namespace NS_NaviCommon
 
       videoInputBuffer.nID = 0;
       memcpy(p->pAddrPhyY, &p->yuvData[0], sizeY);
-      memcpy(p->pAddrPhyC, &p->yuvData[0], sizeY / 2);
+      memcpy(p->pAddrPhyC, &p->yuvData[sizeY], sizeY / 2);
 
       CdcMemFlushCache(memops, p->pAddrPhyY, sizeY);
       CdcMemFlushCache(memops, p->pAddrPhyC, sizeY / 2);
@@ -388,12 +441,14 @@ namespace NS_NaviCommon
       videoInputBuffer.pAddrPhyC = (unsigned char*)CdcMemGetPhysicAddressCpu(
           memops, p->pAddrPhyC);
     }
+    /*
     else
     {
       memset(&videoInputBuffer, 0, sizeof(VideoInputBuffer));
       videoInputBuffer.nLen = p->videoConfig.nSrcHeight * p->videoConfig.nSrcWidth * 3 / 2;
       videoInputBuffer.pData = (unsigned char*)malloc(videoInputBuffer.nLen);
     }
+    */
 
     int size;
     long long videoPts = 0;
@@ -545,6 +600,14 @@ namespace NS_NaviCommon
       rw = NULL;
     }
 
+#if FS_WRITER
+    if(fs_cache_mem.mp_cache)
+    {
+      free(fs_cache_mem.mp_cache);
+      fs_cache_mem.mp_cache = NULL;
+    }
+#endif
+
     p->exitFlag = 1;
     return NULL;
   }
@@ -599,13 +662,14 @@ namespace NS_NaviCommon
     }
   }
 
-  bool MapGenerator::compressYuvToJpeg(std::vector< int >& yuv,
+  bool MapGenerator::compressYuvToJpeg(std::vector< char >& yuv,
                                        int height, int width,
                                        std::string jpeg_file)
   {
     DemoRecoderContext demoRecoder;
-    CdxMuxerPacketT *mPacket = NULL;
     memset(&demoRecoder, 0, sizeof(DemoRecoderContext));
+
+    videoEos = 0;
 
     EncDataCallBackOps mEncDataCallBackOps;
     mEncDataCallBackOps.onVideoDataEnc = onVideoDataEnc;
@@ -619,6 +683,7 @@ namespace NS_NaviCommon
       return false;
     }
 #endif
+
     demoRecoder.muxType = CDX_MUXER_MOV;   //  mux type: 0:MP4 1:TS 3:AAC 4:MP3
     demoRecoder.hasPacket = 0;
     memset(&demoRecoder.videoConfig, 0, sizeof(VideoEncodeConfig));
@@ -631,7 +696,7 @@ namespace NS_NaviCommon
     demoRecoder.videoConfig.nSrcWidth = width;                             //352
     demoRecoder.videoConfig.nBitRate = 3 * 1000 * 1000;
     demoRecoder.videoConfig.bUsePhyBuf = 1;
-
+    demoRecoder.yuvData = yuv;
     demoRecoder.exitFlag = 0;       //init
 
     demoRecoder.mAwEncoder = AwEncoderCreate(&demoRecoder);

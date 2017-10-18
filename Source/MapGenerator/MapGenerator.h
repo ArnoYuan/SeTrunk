@@ -31,11 +31,12 @@ namespace NS_NaviCommon
                                   int map_height, int map_width,
                                   int robot_pose_x, int robot_pose_y);
 
-    static void pgmToYuv(std::vector< char >& pgm,
-                         std::vector< int >& yuv,
-                         int height, int width);
+    static void mapToYuv(std::vector< char >& pgm,
+                         std::vector< char >& yuv,
+                         int height, int width,
+                         int& resize_height, int& resize_width);
 
-    static bool compressYuvToJpeg(std::vector< int >& yuv,
+    static bool compressYuvToJpeg(std::vector< char >& yuv,
                                   int height, int width,
                                   std::string jpeg_file);
 

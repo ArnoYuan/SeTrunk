@@ -28,7 +28,7 @@ typedef struct DemoRecoderContext
     CdxMuxerPacketT *packet;
     int hasPacket;
 
-    std::vector< int > yuvData;
+    std::vector< char > yuvData;
 
 }__attribute__((packed))DemoRecoderContext;
 

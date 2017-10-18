@@ -139,8 +139,9 @@ namespace NS_Trunk
         if(map.result)
         {
           //NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
-          std::vector< int > yuv_data;
-          NS_NaviCommon::MapGenerator::pgmToYuv(map.map.data, yuv_data, map.map.info.height, map.map.info.width);
+          std::vector< char > yuv_data;
+          int yuv_height, yuv_width;
+          NS_NaviCommon::MapGenerator::pgmToYuv(map.map.data, yuv_data, map.map.info.height, map.map.info.width, yuv_height, yuv_width);
           NS_NaviCommon::MapGenerator::compressYuvToJpeg(yuv_data, map.map.info.height, map.map.info.width, map_path_);
           sendMap(map_path_, app_ip_addr_, app_ip_map_port_);
         }
@@ -179,6 +180,7 @@ namespace NS_Trunk
     }
 
     fd_set server_fd_set;
+
     struct timeval tv;
 
     tv.tv_sec = 1;
