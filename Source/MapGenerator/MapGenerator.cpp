@@ -362,7 +362,7 @@ namespace NS_NaviCommon
       {
         rgb_point = rgb[j * width + i];
 
-        if(*rgb_point == 99)
+        if(rgb_point == 99)
         {
           r = 240;
           g = 0;
