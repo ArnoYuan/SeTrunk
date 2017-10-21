@@ -14,8 +14,12 @@
 
 #include <Service/ServiceType/ServiceMap.h>
 #include <DataSet/DataType/PoseStamped.h>
+#include <Service/ServiceType/ServiceString.h>
+#include <DataSet/DataType/PoseStamped.h>
+#include <Service/Server.h>
 #include <Service/Client.h>
 #include <DataSet/Publisher.h>
+#include <DataSet/Subscriber.h>
 
 #include <iostream>
 #include <string>
@@ -33,26 +37,25 @@ namespace NS_Trunk
     std::string map_path_;
     double map_update_rate_;
 
-    std::string app_ip_addr_;
-    int app_ip_map_port_;
-    int app_ip_goal_port_;
-
   private:
     NS_Service::Client< NS_ServiceType::ServiceMap >* map_cli;
     NS_DataSet::Publisher< NS_DataType::PoseStamped >* goal_pub;
+    NS_DataSet::Subscriber< NS_DataType::Pose >* goal_sub;
+    NS_Service::Server< NS_ServiceType::ServiceString >* map_file_srv;
 
     boost::thread map_generate_thread;
 
-    boost::thread get_goal_thread;
+    boost::mutex map_file_lock;
+    std::string map_file_name;
 
   private:
     void loadParameters();
 
     void mapGenerateLoop();
 
-    void getGoalLoop();
+    void goalCallback(NS_DataType::Pose& goal);
 
-    bool sendMap(std::string map_path, std::string app_ip_addr, int app_ip_port);
+    void mapFileService(NS_ServiceType::ServiceString& filename);
 
   public:
     virtual void run();
