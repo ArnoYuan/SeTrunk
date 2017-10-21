@@ -9,13 +9,9 @@
 #include <Parameter/Parameter.h>
 #include <Transform/DataTypes.h>
 #include "MapGenerator/MapGenerator.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -98,9 +94,15 @@ namespace NS_Trunk
           int yuv_height, yuv_width;
           NS_NaviCommon::MapGenerator::mapToYuv(map.map.data, yuv_data, map.map.info.height, map.map.info.width, yuv_height, yuv_width);
           NS_NaviCommon::MapGenerator::compressYuvToJpeg(yuv_data, map.map.info.height, map.map.info.width, map_path_);
+
           boost::mutex::scoped_lock locker(map_file_lock);
-          save_index++;
-          map_file_name = "/tmp/gmap_" + std::to_string(save_index) + ".jpg";
+
+          std::stringstream map_file_name_str;
+          map_file_name_str << "/tmp/gmap_";
+          map_file_name_str << save_index++;
+          map_file_name_str << ".jpg";
+          map_file_name = map_file_name_str.str();
+
           boost::filesystem::copy_file(boost::filesystem::path(map_path_), boost::filesystem::path(map_file_name), boost::filesystem::copy_option::fail_if_exists);
         }
       }
