@@ -69,7 +69,7 @@ namespace NS_Trunk
 
   void TrunkApplication::mapFileService(NS_ServiceType::ServiceString& filename)
   {
-    console.message("Map file %s ready to be download.", map_file_name);
+    console.message("Map file %s ready to be download.", map_file_name.c_str());
     boost::mutex::scoped_lock locker(map_file_lock);
     if(boost::filesystem::exists(boost::filesystem::path(map_file_name)))
     {
