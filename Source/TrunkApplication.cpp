@@ -59,6 +59,9 @@ namespace NS_Trunk
 
   void TrunkApplication::goalCallback(NS_DataType::Pose& goal)
   {
+    console.message("Get goal from service! x=%f, y=%f, z=%f, w=%f.",
+                    goal.position.x, goal.position.y,
+                    goal.orientation.z, goal.orientation.w);
     NS_DataType::PoseStamped set_goal;
     set_goal.pose = goal;
     goal_pub->publish(set_goal);
@@ -66,6 +69,7 @@ namespace NS_Trunk
 
   void TrunkApplication::mapFileService(NS_ServiceType::ServiceString& filename)
   {
+    console.message("Map file %s ready to be download.", map_file_name);
     boost::mutex::scoped_lock locker(map_file_lock);
     if(boost::filesystem::exists(boost::filesystem::path(map_file_name)))
     {
