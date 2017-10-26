@@ -710,7 +710,7 @@ namespace NS_NaviCommon
 
     AwEncoderInit(demoRecoder.mAwEncoder, &demoRecoder.videoConfig, NULL, &mEncDataCallBackOps);
 
-    sprintf(demoRecoder.pUrl, "save.mp4");
+    sprintf(demoRecoder.pUrl, "/tmp/gmap.mp4");
 
     AwEncoderStart(demoRecoder.mAwEncoder);
 
