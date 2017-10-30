@@ -22,6 +22,14 @@
 
 namespace NS_NaviCommon
 {
+  enum
+  {
+    PGM_ROBOT_POSE = 99,
+    PGM_SCAN_EDGE = 100,
+    PGM_KNOWN_AREA = 0,
+    PGM_UNKNOWN_EDGE = -1,
+  };
+
   static int videoEos = 0;
 
   bool MapGenerator::lock(int fd)
@@ -42,6 +50,7 @@ namespace NS_NaviCommon
     return true;
   }
 
+  /*
   bool MapGenerator::saveMapInPGM(std::vector< char > map_data,
                                   int height, int width,
                                   std::string pgm_file)
@@ -212,6 +221,7 @@ namespace NS_NaviCommon
     return true;
 
   }
+  */
 
   bool MapGenerator::addRobotPoseInMap(std::vector< char >& map_data,
                                        int map_height, int map_width,
@@ -224,11 +234,69 @@ namespace NS_NaviCommon
         int k = x + (map_height - y - 1) * map_width;
         if(x == robot_pose_x && y == robot_pose_y)
         {
-          map_data[k] = 99;
+          map_data[k] = PGM_ROBOT_POSE;
           return true;
         }
       }
     }
+    /*
+    int cflag = 0;
+    for(int j = 0; j < height; j++)
+    {
+      for(int i = 0; i < width; i++)
+      {
+        if(pgm[j * width + i] == PGM_ROBOT_POSE)
+        {
+          printf("robot pose is %d, %d\n", i, height - j);
+          if((j % 2) == 0)
+          {
+            if((i % 2) == 0)
+            {
+              pgm[j * width + i + 1] = PGM_ROBOT_POSE;
+              pgm[(j + 1) * width + i] = PGM_ROBOT_POSE;
+              pgm[(j + 1) * width + i + 1] = PGM_ROBOT_POSE;
+              cflag = 1;
+              break;
+            }
+            else
+            {
+              //(i%2==1)
+              pgm[j * width + i - 1] = PGM_ROBOT_POSE;
+              pgm[(j + 1) * width + i] = PGM_ROBOT_POSE;
+              pgm[(j + 1) * width + i - 1] = PGM_ROBOT_POSE;
+              cflag = 1;
+              break;
+            }
+          }
+          else
+          {
+            //(j%2==1)
+            if((i % 2) == 0)
+            {
+              pgm[j * width + i + 1] = PGM_ROBOT_POSE;
+              pgm[(j - 1) * width + i] = PGM_ROBOT_POSE;
+              pgm[(j - 1) * width + i + 1] = PGM_ROBOT_POSE;
+              cflag = 1;
+              break;
+            }
+            else
+            {
+              //(i%2==1)
+              pgm[j * width + i - 1] = PGM_ROBOT_POSE;
+              pgm[(j - 1) * width + i] = PGM_ROBOT_POSE;
+              pgm[(j - 1) * width + i - 1] = PGM_ROBOT_POSE;
+              cflag = 1;
+              break;
+            }
+          }
+        }
+
+      }
+      if(cflag == 1)
+        break;
+    }
+    */
+
     return false;
   }
 
@@ -243,62 +311,6 @@ namespace NS_NaviCommon
 
     std::vector< char > rgb;
     rgb.resize(size);
-
-    int cflag = 0;
-    for(int j = 0; j < height; j++)
-    {
-      for(int i = 0; i < width; i++)
-      {
-        if(pgm[j * width + i] == 99)
-        {
-          printf("robot pose is %d, %d\n", i, height - j);
-          if((j % 2) == 0)
-          {
-            if((i % 2) == 0)
-            {
-              pgm[j * width + i + 1] = 99;
-              pgm[(j + 1) * width + i] = 99;
-              pgm[(j + 1) * width + i + 1] = 99;
-              cflag = 1;
-              break;
-            }
-            else
-            {
-              //(i%2==1)
-              pgm[j * width + i - 1] = 99;
-              pgm[(j + 1) * width + i] = 99;
-              pgm[(j + 1) * width + i - 1] = 99;
-              cflag = 1;
-              break;
-            }
-          }
-          else
-          {
-            //(j%2==1)
-            if((i % 2) == 0)
-            {
-              pgm[j * width + i + 1] = 99;
-              pgm[(j - 1) * width + i] = 99;
-              pgm[(j - 1) * width + i + 1] = 99;
-              cflag = 1;
-              break;
-            }
-            else
-            {
-              //(i%2==1)
-              pgm[j * width + i - 1] = 99;
-              pgm[(j - 1) * width + i] = 99;
-              pgm[(j - 1) * width + i - 1] = 99;
-              cflag = 1;
-              break;
-            }
-          }
-        }
-
-      }
-      if(cflag == 1)
-        break;
-    }
 
     resize_width = width;
     resize_height = height;
@@ -317,34 +329,18 @@ namespace NS_NaviCommon
     {
       for(int x = 0; x < width; x++)
       {
-
-        if(pgm[pos] == 0)
-        { //occ [0,0.1)
-          rgb[pos++] = 254;
-        }
-        else if(pgm[pos] == +100)
-        { //occ (0.65,1]
-          rgb[pos++] = 0;
-        }
-        else if(pgm[pos] == 99)
-        {
-          rgb[pos++] = 99;
-        }
-        else
-        { //occ [0.1,0.65]
-          rgb[pos++] = 205;
-        }
+        rgb[pos++] = pgm[pos];
       }
       for(int k = 0; k < (resize_width - width); k++)
       {
-         rgb[pos++] = 205;
+         rgb[pos++] = PGM_UNKNOWN_EDGE;
       }
     }
     for(int y = 0; y < resize_height - height; y++)
     {
       for(int x = 0; x < resize_width; x++)
       {
-        rgb[pos++] = 205;
+        rgb[pos++] = PGM_UNKNOWN_EDGE;
       }
     }
 
@@ -362,7 +358,8 @@ namespace NS_NaviCommon
       {
         rgb_point = rgb[j * width + i];
 
-        if(rgb_point == 99)
+        /*
+        if(rgb_point == PGM_ROBOT_POSE)
         {
           r = 240;
           g = 0;
@@ -376,6 +373,7 @@ namespace NS_NaviCommon
         y = (unsigned char)((299 * r + 587 * g + 114 * b) / 1000);
         u = (unsigned char)((-169 * r - 331 * g + 500 * b) / 1000) + 128;
         v = (unsigned char)((500 * r - 419 * g - 81 * b) / 1000) + 128;
+        */
 
         if(y > 255)
           y = 255;
