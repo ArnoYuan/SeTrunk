@@ -22,13 +22,7 @@
 
 namespace NS_NaviCommon
 {
-  enum
-  {
-    PGM_ROBOT_POSE = 99,
-    PGM_SCAN_EDGE = 100,
-    PGM_KNOWN_AREA = 0,
-    PGM_UNKNOWN_EDGE = -1,
-  };
+
 
   static int videoEos = 0;
 
@@ -223,81 +217,46 @@ namespace NS_NaviCommon
   }
   */
 
-  bool MapGenerator::addRobotPoseInMap(std::vector< char >& map_data,
-                                       int map_height, int map_width,
-                                       int robot_pose_x, int robot_pose_y)
+  bool MapGenerator::addPointInMap(std::vector< char >& map_data,
+                                   int height, int width,
+                                   int x, int y,
+                                   GridPointValue point)
   {
-    for(int y = 0; y < map_height; y++)
+    for(int i = 0; i < height; i++)
     {
-      for(int x = 0; x < map_width; x++)
+      for(int j = 0; j < width; j++)
       {
-        int k = x + (map_height - y - 1) * map_width;
-        if(x == robot_pose_x && y == robot_pose_y)
+        int k = j + (height - i - 1) * width;
+        if(j == x && i == y)
         {
-          map_data[k] = PGM_ROBOT_POSE;
+          map_data[k] = point;
           return true;
         }
       }
     }
-    /*
-    int cflag = 0;
-    for(int j = 0; j < height; j++)
-    {
-      for(int i = 0; i < width; i++)
-      {
-        if(pgm[j * width + i] == PGM_ROBOT_POSE)
-        {
-          printf("robot pose is %d, %d\n", i, height - j);
-          if((j % 2) == 0)
-          {
-            if((i % 2) == 0)
-            {
-              pgm[j * width + i + 1] = PGM_ROBOT_POSE;
-              pgm[(j + 1) * width + i] = PGM_ROBOT_POSE;
-              pgm[(j + 1) * width + i + 1] = PGM_ROBOT_POSE;
-              cflag = 1;
-              break;
-            }
-            else
-            {
-              //(i%2==1)
-              pgm[j * width + i - 1] = PGM_ROBOT_POSE;
-              pgm[(j + 1) * width + i] = PGM_ROBOT_POSE;
-              pgm[(j + 1) * width + i - 1] = PGM_ROBOT_POSE;
-              cflag = 1;
-              break;
-            }
-          }
-          else
-          {
-            //(j%2==1)
-            if((i % 2) == 0)
-            {
-              pgm[j * width + i + 1] = PGM_ROBOT_POSE;
-              pgm[(j - 1) * width + i] = PGM_ROBOT_POSE;
-              pgm[(j - 1) * width + i + 1] = PGM_ROBOT_POSE;
-              cflag = 1;
-              break;
-            }
-            else
-            {
-              //(i%2==1)
-              pgm[j * width + i - 1] = PGM_ROBOT_POSE;
-              pgm[(j - 1) * width + i] = PGM_ROBOT_POSE;
-              pgm[(j - 1) * width + i - 1] = PGM_ROBOT_POSE;
-              cflag = 1;
-              break;
-            }
-          }
-        }
-
-      }
-      if(cflag == 1)
-        break;
-    }
-    */
 
     return false;
+  }
+
+  bool MapGenerator::addRobotPoseInMap(std::vector< char >& map_data,
+                                       int map_height, int map_width,
+                                       int robot_pose_x, int robot_pose_y)
+  {
+    return addPointInMap(map_data, map_height, map_width, robot_pose_x, robot_pose_y, PGM_ROBOT_POSE);
+  }
+
+  bool MapGenerator::addPathPointInMap(std::vector< char >& map_data,
+                                       int map_height, int map_width,
+                                       int path_pose_x, int path_pose_y)
+  {
+    return addPointInMap(map_data, map_height, map_width, path_pose_x, path_pose_y, PGM_PATH);
+  }
+
+  bool MapGenerator::addTargetInMap(std::vector< char >& map_data,
+                                    int map_height, int map_width,
+                                    int goal_pose_x, int goal_pose_y)
+  {
+    return addPointInMap(map_data, map_height, map_width, goal_pose_x, goal_pose_y, PGM_TARGET);
   }
 
   void MapGenerator::mapToYuv(std::vector< char >& pgm,
