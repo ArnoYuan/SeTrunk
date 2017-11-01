@@ -292,14 +292,14 @@ namespace NS_NaviCommon
       }
       for(int k = 0; k < (resize_width - width); k++)
       {
-         rgb[pos++] = PGM_UNKNOWN_EDGE;
+         rgb[pos++] = PGM_UNKNOWN_AREA;
       }
     }
     for(int y = 0; y < resize_height - height; y++)
     {
       for(int x = 0; x < resize_width; x++)
       {
-        rgb[pos++] = PGM_UNKNOWN_EDGE;
+        rgb[pos++] = PGM_UNKNOWN_AREA;
       }
     }
 
