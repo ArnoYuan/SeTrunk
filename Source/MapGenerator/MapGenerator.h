@@ -19,7 +19,7 @@ namespace NS_NaviCommon
   typedef enum
   {
     PGM_UNKNOWN_AREA  = 255,
-    PGM_SCAN_EDGE = 254,
+    PGM_SCAN_EDGE = 100,
     PGM_INFLATION = 253,
     PGM_KNOWN_AREA = 0,
     PGM_ROBOT_POSE = 50,

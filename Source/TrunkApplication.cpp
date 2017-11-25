@@ -32,6 +32,12 @@ namespace NS_Trunk
 
     map_file_srv = new NS_Service::Server< NS_ServiceType::ServiceString >("MAP_FILE_FOR_APP",
                                                                            boost::bind(&TrunkApplication::mapFileService, this, _1));
+
+    global_target_cli = new NS_Service::Client<NS_DataType::PoseStamped>("GLOBAL_TARGET");
+
+    plan_cli = new NS_Service::Client<std::vector<NS_DataType::PoseStamped> >("PLAN");
+
+    current_pose_cli = new NS_Service::Client<NS_DataType::PoseStamped>("CURRENT_POSE");
   }
 
   TrunkApplication::~TrunkApplication()
@@ -46,6 +52,9 @@ namespace NS_Trunk
     delete goal_pub;
     delete goal_sub;
     delete map_file_srv;
+    delete global_target_cli;
+    delete plan_cli;
+    delete current_pose_cli;
   }
 
   void TrunkApplication::loadParameters()
@@ -94,6 +103,7 @@ namespace NS_Trunk
         if(map.result)
         {
           //NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
+          /*
           std::vector< char > yuv_data;
           int yuv_height, yuv_width;
           NS_NaviCommon::MapGenerator::mapToYuv(map.map.data, yuv_data, map.map.info.height, map.map.info.width, yuv_height, yuv_width);
@@ -108,6 +118,76 @@ namespace NS_Trunk
           map_file_name = map_file_name_str.str();
 
           boost::filesystem::copy_file(boost::filesystem::path(map_path_), boost::filesystem::path(map_file_name), boost::filesystem::copy_option::fail_if_exists);
+          */
+
+          console.debug("Map got, Begin to get plan!\n");
+          std::vector<NS_DataType::PoseStamped> plan;
+          plan_cli->call(plan);
+          if(plan.size() != 0)
+          {
+            for(int i = 0; i < plan.size(); ++i)
+            {
+                double x = (plan[i].pose.position.x + 25) / 0.1 - 0.5;
+                double y = (plan[i].pose.position.y + 25) / 0.1 - 0.5;
+                NS_NaviCommon::MapGenerator::addPathPointInMap(
+                        map.map.data, map.map.info.height,
+                        map.map.info.width, x, y);
+            }
+          }
+          else
+          {
+            console.debug("Plan is null\n");
+          }
+
+          NS_DataType::PoseStamped current_pose;
+          current_pose_cli->call(current_pose);
+          if(current_pose.pose.position.x != 0)
+          {
+            double x = (current_pose.pose.position.x + 25) / 0.1 - 0.5;
+            double y = (current_pose.pose.position.y + 25) / 0.1 - 0.5;
+
+            NS_NaviCommon::MapGenerator::addRobotPoseInMap(map.map.data,
+                    map.map.info.height, map.map.info.width, x, y);
+          }
+          else
+          {
+            console.debug("current_pose is null\n");
+          }
+
+          NS_DataType::PoseStamped target;
+          global_target_cli->call(target);
+          if(target.pose.position.x != 0)
+          {
+            double x = (target.pose.position.x + 25) / 0.1 - 0.5;
+            double y = (target.pose.position.y + 25) / 0.1 - 0.5;
+            NS_NaviCommon::MapGenerator::addTargetInMap(map.map.data,
+                    map.map.info.height, map.map.info.width, x, y);
+          }
+          else
+          {
+            console.debug("global_target is null\n");
+          }
+
+          //NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
+          std::vector<char> yuv_data;
+          int yuv_height, yuv_width;
+          NS_NaviCommon::MapGenerator::mapToYuv(map.map.data, yuv_data,
+                  map.map.info.height, map.map.info.width, yuv_height,
+                  yuv_width);
+          NS_NaviCommon::MapGenerator::compressYuvToJpeg(yuv_data,
+                  map.map.info.height, map.map.info.width, map_path_);
+
+          boost::mutex::scoped_lock locker(map_file_lock);
+
+          std::stringstream map_file_name_str;
+          map_file_name_str << "/tmp/gmap_";
+          map_file_name_str << save_index++;
+          map_file_name_str << ".jpg";
+          map_file_name = map_file_name_str.str();
+
+          boost::filesystem::copy_file(boost::filesystem::path(map_path_),
+                  boost::filesystem::path(map_file_name),
+                  boost::filesystem::copy_option::fail_if_exists);
         }
       }
       rate.sleep();

@@ -20,10 +20,12 @@
 #define VIDEO_INPUT (1)
 #define FS_WRITER (1)
 
+#define CALC_Y(r, g, b) ((299 * r + 587 * g + 114 * b) / 1000)
+#define CALC_U(r, g, b) ((-169 * r - 331 * g + 500 * b) / 1000 + 128)
+#define CALC_V(r, g, b) ((500 * r - 419 * g - 81 * b) / 1000 + 128)
+
 namespace NS_NaviCommon
 {
-
-
   static int videoEos = 0;
 
   bool MapGenerator::lock(int fd)
@@ -222,12 +224,12 @@ namespace NS_NaviCommon
                                    int x, int y,
                                    GridPointValue point)
   {
-    for(int i = 0; i < height; i++)
+    for (int i = 0; i < height; i++)
     {
-      for(int j = 0; j < width; j++)
+      for (int j = 0; j < width; j++)
       {
-        int k = j + (height - i - 1) * width;
-        if(j == x && i == y)
+        int k = i * width + j;
+        if (j == x && i == y)
         {
           map_data[k] = point;
           return true;
@@ -317,22 +319,56 @@ namespace NS_NaviCommon
       {
         rgb_point = rgb[j * width + i];
 
-        /*
-        if(rgb_point == PGM_ROBOT_POSE)
+        switch(rgb_point)
         {
-          r = 240;
-          g = 0;
-          b = 0;
+          case PGM_UNKNOWN_AREA:
+            //gray
+            y = CALC_Y(206, 206, 206);
+            u = CALC_U(206, 206, 206);
+            v = CALC_V(206, 206, 206);
+            break;
+          case PGM_SCAN_EDGE:
+            //black
+            y = CALC_Y(0, 0, 0);
+            u = CALC_U(0, 0, 0);
+            v = CALC_V(0, 0, 0);
+            break;
+          case PGM_INFLATION:
+            //deep gray
+            y = CALC_Y(169, 169, 169);
+            u = CALC_U(169, 169, 169);
+            v = CALC_V(169, 169, 169);
+            break;
+          case PGM_KNOWN_AREA:
+            //white
+            y = CALC_Y(254, 254, 254);
+            u = CALC_U(254, 254, 254);
+            v = CALC_V(254, 254, 254);
+            break;
+          case PGM_ROBOT_POSE:
+            //yellow
+            y = CALC_Y(255, 255, 0);
+            u = CALC_U(255, 255, 0);
+            v = CALC_V(255, 255, 0);
+            break;
+          case PGM_TARGET:
+            //blue
+            y = CALC_Y(0, 0, 255);
+            u = CALC_U(0, 0, 255);
+            v = CALC_V(0, 0, 255);
+            break;
+          case PGM_PATH:
+            //red
+            y = CALC_Y(220, 20, 60);
+            u = CALC_U(220, 20, 60);
+            v = CALC_V(220, 20, 60);
+            break;
+          default:
+            y = CALC_Y(206, 206, 206);
+            u = CALC_U(206, 206, 206);
+            v = CALC_V(206, 206, 206);
+            break;
         }
-        else
-        {
-          r = g = b = rgb_point;
-        }
-
-        y = (unsigned char)((299 * r + 587 * g + 114 * b) / 1000);
-        u = (unsigned char)((-169 * r - 331 * g + 500 * b) / 1000) + 128;
-        v = (unsigned char)((500 * r - 419 * g - 81 * b) / 1000) + 128;
-        */
 
         if(y > 255)
           y = 255;

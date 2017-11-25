@@ -42,6 +42,9 @@ namespace NS_Trunk
     NS_DataSet::Publisher< NS_DataType::PoseStamped >* goal_pub;
     NS_DataSet::Subscriber< NS_DataType::Pose >* goal_sub;
     NS_Service::Server< NS_ServiceType::ServiceString >* map_file_srv;
+    NS_Service::Client<NS_DataType::PoseStamped>* global_target_cli;
+    NS_Service::Client<std::vector< NS_DataType::PoseStamped> >* plan_cli;
+    NS_Service::Client< NS_DataType::PoseStamped >* current_pose_cli;
 
     boost::thread map_generate_thread;
 
