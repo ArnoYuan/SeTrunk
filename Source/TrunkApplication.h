@@ -20,6 +20,7 @@
 #include <Service/Client.h>
 #include <DataSet/Publisher.h>
 #include <DataSet/Subscriber.h>
+#include <Mission/Issuer.h>
 
 #include <iostream>
 #include <string>
@@ -45,6 +46,8 @@ namespace NS_Trunk
     NS_Service::Client<NS_DataType::PoseStamped>* global_target_cli;
     NS_Service::Client<std::vector< NS_DataType::PoseStamped> >* plan_cli;
     NS_Service::Client< NS_DataType::PoseStamped >* current_pose_cli;
+
+    NS_Mission::Issuer goal_iss;
 
     boost::thread map_generate_thread;
 

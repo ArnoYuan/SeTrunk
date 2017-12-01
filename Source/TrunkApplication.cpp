@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string>
 
+
 namespace NS_Trunk
 {
   TrunkApplication::TrunkApplication()
@@ -71,9 +72,12 @@ namespace NS_Trunk
     console.message("Get goal from service! x=%f, y=%f, z=%f, w=%f.",
                     goal.position.x, goal.position.y,
                     goal.orientation.z, goal.orientation.w);
+    /*
     NS_DataType::PoseStamped set_goal;
     set_goal.pose = goal;
     goal_pub->publish(set_goal);
+    */
+    goal_iss.runActionProcess(goal.position.x, goal.position.y, NS_Transform::getYaw(goal.orientation));
   }
 
   void TrunkApplication::mapFileService(NS_ServiceType::ServiceString& filename)
