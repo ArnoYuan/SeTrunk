@@ -106,7 +106,7 @@ namespace NS_Trunk
       {
         if(map.result)
         {
-          //NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
+          NS_NaviCommon::MapGenerator::saveMapInPGM(map.map.data, map.map.info.height, map.map.info.width, map_path_);
           /*
           std::vector< char > yuv_data;
           int yuv_height, yuv_width;
@@ -192,6 +192,7 @@ namespace NS_Trunk
           boost::filesystem::copy_file(boost::filesystem::path(map_path_),
                   boost::filesystem::path(map_file_name),
                   boost::filesystem::copy_option::fail_if_exists);
+
         }
       }
       rate.sleep();
